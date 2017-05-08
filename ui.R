@@ -12,7 +12,7 @@ fluidPage(
   # updated in the output area immediately as you type
   sidebarLayout(
     sidebarPanel(
-      textInput("caption", "Blurb:", "Blurb"),
+      textInput("blurb", "Blurb:", "Blurb"),
       textInput("caption", "Name:", "Name"),
       
       selectInput("dataset", "Choose a Genre:", 
