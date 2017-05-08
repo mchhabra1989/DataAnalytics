@@ -4,7 +4,7 @@ library(datasets)
 
 #Singleton - load data, clean and model
 library(readxl)
-data_KS <- read_excel("~/project/data/Clean_Kickstarter.csv.xlsx")
+data_KS <- read_excel("~/project/Clean_Kickstarter.csv.xlsx")
 data_KS <- na.omit(data_KS)
 #Selecting only successful projects first
 work_set <- data_KS[data_KS$state %in% c("successful"),]
