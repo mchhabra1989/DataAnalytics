@@ -6,16 +6,16 @@ library(datasets)
 library(readxl)
 data_KS <- read_excel("Clean_Kickstarter.csv.xlsx")
 data_KS <- na.omit(data_KS)
-#Selecting only successful projects first
-work_set <- data_KS[data_KS$state %in% c("successful"),]
+#Consider entire data set
+data_KS <- data_KS[data_KS$state %in% c("successful"),]
 data_KS$countname <- nchar(data_KS$name)
 data_KS$countblurb <- nchar(data_KS$blurb)
 #Fit from trained data
-fit <- glm(Percent_funded ~  countname + goal + countblurb + Duration_in_days, data=data_KS)
-captioncoef <- coef(fit)[2]
-goalcoef <- coef(fit)[3]
-blurbcoef <- coef(fit)[4]
-dayscoef <- coef(fit)[5]
+#Filter data set from slider here
+fit <- lm(Percent_funded ~  countname:goal + countblurb + Duration_in_days, data=data_KS)
+cgcoef <- coef(fit)[2]
+blurbcoef <- coef(fit)[3]
+dayscoef <- coef(fit)[4]
 intercept <- coef(fit)[1]
 
 
@@ -37,6 +37,7 @@ goalcoef2 = -0.008159742
 backerscoef2 = 0.216369623
 dayscoef2 = -0.343436786
 intercept2 = 96.466223061
+
 #For failure cases - fit
 fit.goal <- glm(goal ~ countname + countblurb + Duration_in_days, data=data_KS)
 fit.caption <- glm(countname ~ goal + countblurb + Duration_in_days, data=data_KS)
@@ -71,7 +72,7 @@ function(input, output) {
         captioncount <- nchar(input$caption)
         blurbcount <- nchar(input$blurb)
         #To do : testing with goal value, to be replaced with % funded predicted in iteration 1
-        percent_funded1 <- as.numeric(intercept+goalcoef*input$goalslider+captioncoef*captioncount
+        percent_funded1 <- as.numeric(intercept+cgcoef*captioncount
                                      +blurbcoef*blurbcount
                                      +dayscoef*input$durationslider)
         goal <- as.numeric(coef(fit.goal)[1]+coef(fit.goal)[2]*captioncount
@@ -87,7 +88,6 @@ function(input, output) {
                                +coef(fit.days)[4]*input$durationslider)
         
         
-        barplot(c(goal,input$goalslider),col=c("darkblue","red"))
         
         output$text <- renderText({ 
           if(percent_funded1 > 100){
@@ -95,15 +95,37 @@ function(input, output) {
           } 
         })
         output$text1 <- renderUI({
-          if(percent_funded1 < 100 ){
+          if(percent_funded1 < 138 ){
             tags$img(src='fail.png', align = 'right', width = 100, height = 100)
-            
-          }
+            output$text1 <- renderText({ 
+            "According to comparison with predicted data, your project appears to have insufficient properties to be successful"
+            })
+            output$text2 <- renderText({ 
+            "Please see below for values from predicted data and your project data"
+            })
+            output$text3 <- renderText({ 
+            "Modify values to view changes"
+            })
+            output$plot <-renderPlot( {
+              barplot(c(goal,input$goalslider),col=c("darkblue","red"),main = "Predicted project goal vs Entered goal",names.arg = c("Predicted Goal", "Actual Goal"),ylab ="Amount (USD)")
+            })
+            output$plot1 <-renderPlot( {
+            boxplot(c(caption,captioncount),col=c("green","red"),main = "Predicted NoC in Caption vs Entered Caption NoC",names.arg = c("Predicted Caption count", "Actual Caption Count"),ylab ="Number of Characters (NoC)")
+            })
+            output$plot2 <-renderPlot( {
+              barplot(c(blurb,blurbcount),col=c("yellow","red"),main = "Predicted NoC in Blurb vs Entered Blurb NoC",names.arg = c("Predicted Blurb Count", "Actual Count"),ylab ="Number of Characters")
+            })
+            output$plot3 <-renderPlot( {
+              
+                    barplot(c(goal,input$goalslider),col=c("purple","orange"),main = "Predicted Duration vs Entered Duration",names.arg = c("Predicted Duration", "Actua Duration"),ylab ="Number of days", ylim=c(0,500))
+            })
+              }
         })
         
         output$text2 <- renderUI({
-          if(percent_funded1 >=100  ){
+          if(percent_funded1 >=138  ){
             tags$img(src='Success.png', align = 'right', width = 100, height = 100)
+            "Current project properties when compared with predicted data deem it successful. Congrats!"
           }
         })
         
