@@ -28,32 +28,48 @@ fit.blurbcount <- glm(countblurb ~ countname + goal + countblurb + Duration_in_d
 # Define server logic required to summarize and view the selected
 # dataset
 function(input, output) {
-  observe({
-    toggle(condition = input$foo, selector = "#navbar li a[data-value=Project in progress]")
+  v <- reactiveValues(doPlot = FALSE)
+  
+  observeEvent(input$go, {
+    # 0 will be coerced to FALSE
+    # 1+ will be coerced to TRUE
+    v$doPlot <- input$go
   })
-  test <- reactive({
-    captioncount <- nchar(input$caption)
-    blurbcount <- nchar(input$blurb)
-    #To do : testing with goal value, to be replaced with % funded predicted in iteration 1
-    percent_funded <- as.numeric(intercept+goalcoef*input$goalslider+captioncoef*captioncount
-                                 +blurbcoef*blurbcount
-                                 +dayscoef*input$durationslider)
-    goal <- as.numeric(coef(fit.goal)[1]+coef(fit.goal)[2]*captioncount
-                                 +coef(fit.goal)[3]*blurbcount
-                                 +coef(fit.goal)[4]*input$durationslider)
-    caption <- as.numeric(coef(fit.caption)[1]+coef(fit.caption)[2]*input$goalslider
-                                 +coef(fit.caption)[3]*blurbcount
-                                 +coef(fit.caption)[4]*input$durationslider)
-    blurb <- as.numeric(coef(fit.blurbcount)[1]+coef(fit.blurbcount)[3]*input$goalslider+coef(fit.blurbcount)[2]*captioncount
-                                +coef(fit.blurbcount)[4]*input$durationslider)
-    duration <- as.numeric(coef(fit.days)[1]+coef(fit.days)[3]*input$goalslider+coef(fit.days)[2]*captioncount
-                                 +coef(fit.days)[3]*blurbcount
-                                 +coef(fit.days)[4]*input$durationslider)
-    #add more graphs as necessary
-    output$percentplot <-   renderPlot({
-      barplot(c(goal,input$goalslider))
+  
+  observeEvent(input$tabset, {
+    v$doPlot <- FALSE
+  })  
+  
+  output$plot <- renderPlot({
+    if (v$doPlot == FALSE) return()
+    
+    isolate({
+      data <- if (input$tabset == "Uniform") {
+        captioncount <- nchar(input$caption)
+        blurbcount <- nchar(input$blurb)
+        #To do : testing with goal value, to be replaced with % funded predicted in iteration 1
+        percent_funded <- as.numeric(intercept+goalcoef*input$goalslider+captioncoef*captioncount
+                                     +blurbcoef*blurbcount
+                                     +dayscoef*input$durationslider)
+        goal <- as.numeric(coef(fit.goal)[1]+coef(fit.goal)[2]*captioncount
+                           +coef(fit.goal)[3]*blurbcount
+                           +coef(fit.goal)[4]*input$durationslider)
+        caption <- as.numeric(coef(fit.caption)[1]+coef(fit.caption)[2]*input$goalslider
+                              +coef(fit.caption)[3]*blurbcount
+                              +coef(fit.caption)[4]*input$durationslider)
+        blurb <- as.numeric(coef(fit.blurbcount)[1]+coef(fit.blurbcount)[3]*input$goalslider+coef(fit.blurbcount)[2]*captioncount
+                            +coef(fit.blurbcount)[4]*input$durationslider)
+        duration <- as.numeric(coef(fit.days)[1]+coef(fit.days)[3]*input$goalslider+coef(fit.days)[2]*captioncount
+                               +coef(fit.days)[3]*blurbcount
+                               +coef(fit.days)[4]*input$durationslider)
+        barplot(c(goal,input$goalslider))
+      } else {
+        # To Do : Add logic for Tab 2
+        # barplot(c(goal,input$goalslider))
+      }
+      
+      #hist(data)
     })
-    ifelse(percent_funded <= 1000,1,0)
   })
   
   output$text1 <- renderUI({
@@ -64,11 +80,7 @@ function(input, output) {
         #Suggest recommendations
       }
   })
-  
-  observe({
-    toggle(condition = input$foo, selector = "#navbar li a[data-value=Project in progress]")
-  })
-  
+
   output$text2 <- renderUI({
     if(test() == 0){
       tags$img(src='Success.png', align = 'right', width = 100, height = 100)
