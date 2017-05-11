@@ -1,52 +1,73 @@
 library(shiny)
-
-# Define UI for dataset viewer application
-fluidPage(
-  
-  # Application title
-  titlePanel("Reactivity"),
-  
-  # Sidebar with controls to provide a caption, select a dataset,
-  # and specify the number of observations to view. Note that
-  # changes made to the caption in the textInput control are
-  # updated in the output area immediately as you type
+library(shinyjs)
+ui <- fluidPage(
+  titlePanel("Predict % funded for Kickstarter Project"),
+  useShinyjs(),
   sidebarLayout(
     sidebarPanel(
-      textInput("blurb", "Blurb:", "Blurb"),
-      textInput("caption", "Name:", "Name"),
-      
-      selectInput("dataset", "Choose a Genre:", 
-                  choices = c("url", "color", "parent_id")),
-      
-      sliderInput("goalslider",
-                  "goal amount:",
-                  min = 1,
-                  max = 50000,
-                  value = 1000),
-      sliderInput("durationslider",
-                  "Duration:",
-                  min = 1,
-                  max = 100,
-                  value = 10)
+      tabsetPanel(id = "tabset",
+                  tabPanel("Uniform",
+                           textInput("blurb", "Blurb:", "Blurb"),
+                           textInput("caption", "Name:", "Name"),
+                           selectInput("dataset", "Choose a Genre:", 
+                                       choices = c("url", "color", "parent_id")),
+                           sliderInput("goalslider",
+                                       "goal amount:",
+                                       min = 1,
+                                       max = 50000,
+                                       value = 1000),
+                           sliderInput("durationslider",
+                                       "Duration:",
+                                       min = 1,
+                                       max = 100,
+                                       value = 10)
+                  ),
+                  tabPanel("Normal",
+                           textInput("blurb1", "Blurb:", "Blurb"),
+                           textInput("caption1", "Name:", "Name"),
+                           sliderInput("goalslider1",
+                                       "goal amount:",
+                                       min = 0,
+                                       max = 5000,
+                                       value = 0),
+                           sliderInput("pledgeslider1",
+                                       "Amount Pledge:",
+                                       min = 0,
+                                       max = 2000,
+                                       value = 0),
+                           sliderInput("backersslider1",
+                                       "Number of backers:",
+                                       min = 0,
+                                       max = 500,
+                                       value = 0),
+                           sliderInput("Number_day_passedslider",
+                                       "Days passed:",
+                                       min = 0,
+                                       max = 200,
+                                       value = 0),
+                           sliderInput("durationslider1",
+                                       "Duration:",
+                                       min = 0,
+                                       max = 200,
+                                       value = 0)
+                  )
+                  
+      ),
+      actionButton("go", "Plot")
     ),
-    
-    
-    # Show the caption, a summary of the dataset and an HTML 
-	 # table with the requested number of observations
-   mainPanel(
-     htmlOutput('text1'),
-     htmlOutput('text2'),
-     strong("Results"),
-     p("Graph Plot:The expected % funded based on initial project details is"),
-     plotOutput("percentplot"),
-     
-     #textInput("caption", "Test:", "100"),
-     #checkboxInput("smooth", "Smooth"),
-     conditionalPanel(
-      condition = "input.caption.value > 50",
-      img(src='Image3.png', align = 'right')
-     )
-    
+    mainPanel(
+      htmlOutput('text1'),
+      htmlOutput('text2'),
+      
+      strong("Results"),
+      strong(textOutput("text") ),
+      strong(textOutput("text3") ),
+      plotOutput("plot"),
+      conditionalPanel(
+        condition = "input.caption.value > 50",
+        img(src='Image3.png', align = 'right')
+      )
+      
     )
   )
 )
