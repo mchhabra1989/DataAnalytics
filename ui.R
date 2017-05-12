@@ -1,5 +1,6 @@
 library(shiny)
 library(shinyjs)
+library(shinyBS)
 ui <- fluidPage(
   titlePanel("Predict % funded for Kickstarter Project"),
   useShinyjs(),
