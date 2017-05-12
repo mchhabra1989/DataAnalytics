@@ -110,14 +110,13 @@ function(input, output) {
               barplot(c(goal,input$goalslider),col=c("darkblue","red"),main = "Predicted project goal vs Entered goal",names.arg = c("Predicted Goal", "Actual Goal"),ylab ="Amount (USD)")
             })
             output$plot1 <-renderPlot( {
-            boxplot(c(caption,captioncount),col=c("green","red"),main = "Predicted NoC in Caption vs Entered Caption NoC",names.arg = c("Predicted Caption count", "Actual Caption Count"),ylab ="Number of Characters (NoC)")
+            barplot(c(caption,captioncount),col=c("green","red"),main = "Predicted NoC in Caption vs Entered Caption NoC",names.arg = c("Predicted Caption count", "Actual Caption Count"),ylab ="Number of Characters (NoC)")
             })
             output$plot2 <-renderPlot( {
               barplot(c(blurb,blurbcount),col=c("yellow","red"),main = "Predicted NoC in Blurb vs Entered Blurb NoC",names.arg = c("Predicted Blurb Count", "Actual Count"),ylab ="Number of Characters")
             })
             output$plot3 <-renderPlot( {
-              
-                    barplot(c(goal,input$goalslider),col=c("purple","orange"),main = "Predicted Duration vs Entered Duration",names.arg = c("Predicted Duration", "Actua Duration"),ylab ="Number of days", ylim=c(0,500))
+                    barplot(c(duration,input$durationslider),col=c("purple","orange"),main = "Predicted Duration vs Entered Duration",names.arg = c("Predicted Duration", "Actua Duration"),ylab ="Number of days", ylim=c(0,500))
             })
               }
         })
